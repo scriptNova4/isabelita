@@ -1,13 +1,14 @@
 const { getAll, Create, getOne } = require('../controllers/inspecciones.controllers');
 const express = require('express');
+const { verifyJWT } = require('../utils/verifyJWT');
 
 const routerInspecciones = express.Router();
 
 routerInspecciones.route('/')
-    .get(getAll)
-    .post(Create);
+    .get(verifyJWT,getAll)
+    .post(verifyJWT, Create);
 
 routerInspecciones.route('/:id')
-    .get(getOne)
+    .get(verifyJWT, getOne)
     
 module.exports = routerInspecciones;

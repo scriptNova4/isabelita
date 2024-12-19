@@ -1,0 +1,10 @@
+const catchError = require("./catchError");
+const Usuarios = require('../models/Usuarios')
+
+const ValidateUser = async(req, res)=>{
+  const Result = await Usuarios.findOne({where:{email:req.user.email}})
+    if(Result.tipo === "admin"){
+        return 
+    }
+}
+ module.exports ={ValidateUser}

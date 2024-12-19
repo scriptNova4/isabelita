@@ -2,34 +2,43 @@ const catchError = require('../utils/catchError');
 const Usuarios = require('../models/Usuarios');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken')
-const cookieParser = require('cookie-parser')
+const cookieParser = require('cookie-parser');
+const { json } = require('sequelize');
+const {ValidateUser}  = require('../utils/ValidateUser');
 
 const getAll = catchError(async (req, res) => {
-       
-    const result = await Usuarios.findAll()
-   if(!result) return res.status(400).json(result)
-    
-    return res.status(200).json(result)
+    const resp = await ValidateUser(req)
+    console.log(resp)
+    const Users = await Usuarios.findOne({where:{email:req.user.email}}) 
+     if(Users.tipo === "admin"){
+         const result = await Usuarios.findAll()
+        if(!result) return res.status(400).json(result)
+            return res.status(200).json(result)
+     }
+     res.status(400).json({"message":"Unauthorized user"})    
 });
 
 const Create = catchError(async (req, res) => {
-    console.log(req.body)
-   const { nombre, apellidos, tipo, user, password, imagen, cargo, email } = req.body
-   const setPassword = await bcrypt.hash(password, 10)
-   const newUser={
-    nombre,
-    apellidos,
-    tipo,
-    user,
-    password : setPassword,
-    imagen,
-    cargo,
-    status:0,
-    email
-   }
-   const result = await Usuarios.create(newUser)
-       if(!result) res.status(404).json({"message":"User not created"})
-        return res.status(200).json({"message":"User created successfully"})
+    const Users = await Usuarios.findOne({where:{email:req.user.email}}) 
+    if(Users.tipo ==="admin"){
+        const { nombre, apellidos, tipo, user, password, imagen, cargo, email } = req.body
+        const setPassword = await bcrypt.hash(password, 10)
+        const newUser={
+         nombre,
+         apellidos,
+         tipo,
+         user,
+         password : setPassword,
+         imagen,
+         cargo,
+         status:0,
+         email
+        }
+        const result = await Usuarios.create(newUser)
+            if(!result) res.status(404).json({"message":"User not created"})
+             return res.status(200).json({"message":"User created successfully"})
+    }
+    res.status(400).json({"message":"Unauthorized user"})
 })
 
 
@@ -42,10 +51,8 @@ const getOne = catchError (async ( req , res )=>{
     return res.status(200).json(result)
 })
 
-const Update = catchError(async ( req, res )=>{
-   
-     const id  = parseInt(req.params.id)
-     
+const Update = catchError(async ( req, res )=>{   
+     const id  = parseInt(req.params.id)     
      const { nombre, apellidos, tipo, user, password, imagen, cargo, status,email } = req.body
      const newUser={
         nombre,
@@ -58,29 +65,26 @@ const Update = catchError(async ( req, res )=>{
         email
        }
        if(password){
-        console.log(password)
         const setPassword = await bcrypt.hash(password, 10)
          newUser.password=setPassword;
          newUser.status='1'
      }       
        const result = await Usuarios.update(newUser,{where:{id},returning:true})
        if(!result) return res.status(404).json({"message":"User not Updated"})
-
         return res.status(200).json({"message":"User Updated successfully"})
 
 })
 
+
 const Login = catchError (async(req, res)=>{
     let Info={}
     const { email, password } = req.body
-   console.log("body",req.body)
    const users = await Usuarios.findOne({where:{email}})
    if(!users) return res.status(404).json({"message":"Invalid Information"})
     const isValid = await bcrypt.compare(password, users.password)
-   if(!isValid) return res.status(404).json({"message":"Invalid Information"})
-     console.log(users.status)
+   if(!isValid) return res.status(404).json({"message":"Invalid Informatión"})
     if(users.status === '0') {
-        Info = {"message":"Es el primer Incio de session debes Cambiar el password"}
+        Info = {"message":"It is the first login, you must change the password"}
 } 
    
     const usuario = {
@@ -105,6 +109,19 @@ const Login = catchError (async(req, res)=>{
   return res.status(200).json({usuario, Info, token})
 })
 
+const Logged = catchError(async(req, res)=>{
+
+    const Users = await Usuarios.findOne({where:{email:req.user.email}})
+    const me={
+        name:Users.nombre, 
+        apellidos:Users.apellidos, 
+        type:Users.tipo,  
+        imagen:Users.imagen,
+        position:Users.cargo, 
+    }
+     res.status(200).json(me)
+})
+
 const Logout =catchError(async(req,res)=>{
 
     res.clearCookie('token');
@@ -117,6 +134,7 @@ module.exports = {
     getOne,
     Update,
     Login,
-    Logout
+    Logout,
+    Logged
 
 }
