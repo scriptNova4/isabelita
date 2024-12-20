@@ -1,10 +1,11 @@
 const catchError = require('../utils/catchError');
 const Extintores = require('../models/Extintores');
 const Usuario = require('../models/Usuarios');
+const { ValidateUser } = require('../utils/ValidateUser');
 
 const getAll = catchError(async(req, res) => {
-    const Users = await Usuario.findOne({where:{email:req.user.email}})
-    if(Users.tipo ==="admin"){
+    const Resp = await ValidateUser(req)
+    if(Resp ==="admin"){
         const results = await Extintores.findAll();
         return res.status(200).json(results);
     }
@@ -13,8 +14,8 @@ const getAll = catchError(async(req, res) => {
 });
 
 const Create = catchError(async(req, res) => {
-    const Users = await Usuario.findOne({where:{email:req.user.email}})
-    if(Users.tipo ==="admin"){
+    const Resp = await ValidateUser(req)
+    if(Resp === "admin"){
         const result = await Extintores.create(req.body);
         return res.status(201).json(result);
         }
@@ -22,8 +23,8 @@ const Create = catchError(async(req, res) => {
 });
 
 const getOne = catchError(async(req, res) => {
-    const Users = await Usuario.findOne({where:{email:req.user.email}})
-    if(Users.tipo==="admin"){
+    const Resp = await ValidateUser(req)
+    if(Resp === "admin"){
         const  id  = parseInt(req.params.id);
         const result = await Extintores.findByPk(id);
         return res.status(200).json(result);
@@ -33,8 +34,8 @@ const getOne = catchError(async(req, res) => {
 
 
 const Update = catchError(async(req, res) => {
-    const Users = await Usuario.findOne({where:{email:req.user.email}})
-    if(Users.tipo==="admin"){
+    const Resp = await ValidateUser(req)
+    if(Resp === "admin"){
         const  id  = parseInt(req.params.id);
         const result = await Extintores.update(
             req.body,

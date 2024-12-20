@@ -12,12 +12,16 @@ const Empresa = sequelize.define('empresa', {
     },
     img_plano: {
         type: DataTypes.TEXT,
-        allowNull: false
+        allowNull: true
     },
-    ubicacion: {
+    area: {
         type: DataTypes.TEXT,
         allowNull: false
     },
+    seccion:{
+        type: DataTypes.TEXT,
+        allowNull: false
+    }
 });
 
 module.exports = Empresa;

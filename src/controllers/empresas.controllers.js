@@ -1,10 +1,12 @@
 const catchError = require('../utils/catchError');
 const Empresas = require('../models/Empresas');
-const Usuarios = require('../models/Usuarios')
+const Usuarios = require('../models/Usuarios');
+const { ValidateUser } = require('../utils/ValidateUser');
+const { ValidateEmpresa } = require('../utils/ValidateEmpresa');
 
 const getAll = catchError(async(req, res) => {
-    const Users = Usuarios.findOne({where:{email: req.user.email}})
-    if(Users.tipo === "admin"){
+    const Resp = await ValidateUser(req)
+    if(Resp === "admin"){
         const results = await Empresas.findAll();
         if(!results) res.status(404).json({"message":"Area not found"})
         return res.json(results);
@@ -13,9 +15,17 @@ const getAll = catchError(async(req, res) => {
 });
 
 const create = catchError(async(req, res) => {
+    const Resp = await ValidateUser(req)
+    if(Resp === "admin"){
+        const Respuesta = await ValidateEmpresa(req)
+        if(Respuesta.ErrorCampo) res.status(404).json({"message":`${Respuesta.ErrorCampo } Registration Error`})
+         const result = await Empresas.create(Respuesta)
+        console.log("controllers",result)
+         return res.status(201).json({"message":"Data successfully recorded"});
+    }
+   
+    res.status(400).json({"message":"Unauthorized user"})
     
-    const result = await Empresas.create(req.body);
-    return res.status(201).json(result);
 });
 
 

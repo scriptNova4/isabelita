@@ -11,11 +11,11 @@ routerUsuarios.route('/')
 routerUsuarios.route('/login')
      .post(Login)
 routerUsuarios.route('/logout')
-      .post(Logout)        
+      .post(verifyJWT, Logout)        
 routerUsuarios.route('/me')
        .get(verifyJWT, Logged)     
 routerUsuarios.route('/:id')
     .get(verifyJWT, getOne)
-    .put(Update);
+    .put(verifyJWT, Update);
 
 module.exports = routerUsuarios;

@@ -3,14 +3,13 @@ const Usuarios = require('../models/Usuarios');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken')
 const cookieParser = require('cookie-parser');
-const { json } = require('sequelize');
 const {ValidateUser}  = require('../utils/ValidateUser');
+const { ValidateLogin } = require('../utils/ValidateLogin');
+
 
 const getAll = catchError(async (req, res) => {
-    const resp = await ValidateUser(req)
-    console.log(resp)
-    const Users = await Usuarios.findOne({where:{email:req.user.email}}) 
-     if(Users.tipo === "admin"){
+    const Resp = await ValidateUser(req)
+     if(Resp === "admin"){
          const result = await Usuarios.findAll()
         if(!result) return res.status(400).json(result)
             return res.status(200).json(result)
@@ -19,8 +18,8 @@ const getAll = catchError(async (req, res) => {
 });
 
 const Create = catchError(async (req, res) => {
-    const Users = await Usuarios.findOne({where:{email:req.user.email}}) 
-    if(Users.tipo ==="admin"){
+    const Resp = await ValidateUser(req)
+    if(Resp ==="admin"){
         const { nombre, apellidos, tipo, user, password, imagen, cargo, email } = req.body
         const setPassword = await bcrypt.hash(password, 10)
         const newUser={
@@ -43,45 +42,61 @@ const Create = catchError(async (req, res) => {
 
 
 const getOne = catchError (async ( req , res )=>{
-  
-    const id = parseInt(req.params.id)
-    
-    const result = await Usuarios.findOne({where:{id}})    
-    if(!result) return res.status(404).json({"message":"User found"})        
-    return res.status(200).json(result)
+    const Resp = await ValidateUser(req)
+    if(Resp === "admin"){
+        const id = parseInt(req.params.id)        
+        const result = await Usuarios.findOne({where:{id}})    
+        if(!result) return res.status(404).json({"message":"User found"})        
+        return res.status(200).json(result)
+    }
+    res.status(400).json({"message":"Unauthorized user"})
 })
 
-const Update = catchError(async ( req, res )=>{   
-     const id  = parseInt(req.params.id)     
-     const { nombre, apellidos, tipo, user, password, imagen, cargo, status,email } = req.body
-     const newUser={
-        nombre,
-        apellidos,
-        tipo,
-        user,
-        imagen,
-        cargo,
-        status,
-        email
-       }
-       if(password){
-        const setPassword = await bcrypt.hash(password, 10)
-         newUser.password=setPassword;
-         newUser.status='1'
-     }       
-       const result = await Usuarios.update(newUser,{where:{id},returning:true})
-       if(!result) return res.status(404).json({"message":"User not Updated"})
-        return res.status(200).json({"message":"User Updated successfully"})
+const Update = catchError(async ( req, res )=>{  
+    const Resp = await ValidateUser(req)
+    const {password} = req.body
+    const id  = parseInt(req.params.id)   
+    if(Resp === "admin"){          
+        const { nombre, apellidos, tipo, user, password, imagen, cargo, status,email } = req.body
+        const newUser={
+           nombre,
+           apellidos,
+           tipo,
+           user,
+           imagen,
+           cargo,
+           status,
+           email
+          }
+          if(password){
+            const setPassword = await bcrypt.hash(password, 10)
+             newUser.password=setPassword;
+             newUser.status=1
+         } 
+           const result = await Usuarios.update(newUser,{where:{id},returning:true})      
+           if(!result) return res.status(404).json({"message":"User not Updated"})
+            return res.status(200).json({"message":"User Updated successfully"})
 
+    }else if(password){
+        const setPassword = await bcrypt.hash(password, 10)
+         const Pass ={
+            password:setPassword,
+            status:1
+         }
+         const result = await Usuarios.update(Pass,{where:{id},returning:true})
+         if(!result) return res.status(404).json({"message":"User not Updated"})
+          return res.status(200).json({"message":"User Updated successfully"})
+     }       
 })
 
 
 const Login = catchError (async(req, res)=>{
     let Info={}
-    const { email, password } = req.body
-   const users = await Usuarios.findOne({where:{email}})
+    const Respuesta = await ValidateLogin(req)
+    if(Respuesta.Fiel_error) return res.status(404).json({"message":`${Respuesta.error}`})
+   const users = await Usuarios.findOne({where:{email:Respuesta.email}})
    if(!users) return res.status(404).json({"message":"Invalid Information"})
-    const isValid = await bcrypt.compare(password, users.password)
+    const isValid = await bcrypt.compare(Respuesta.password, users.password)
    if(!isValid) return res.status(404).json({"message":"Invalid Informatión"})
     if(users.status === '0') {
         Info = {"message":"It is the first login, you must change the password"}
@@ -125,7 +140,7 @@ const Logged = catchError(async(req, res)=>{
 const Logout =catchError(async(req,res)=>{
 
     res.clearCookie('token');
-    res.status(200).json({ "message": "Sesión cerrada" });
+    res.status(200).json({ "message": "Closed Sesión" });
 })
 
 module.exports = {
