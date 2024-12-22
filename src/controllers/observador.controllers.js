@@ -1,5 +1,7 @@
 const catchError = require('../utils/catchError');
 const Observador = require('../models/Observador');
+const { ValidateUser } = require('../utils/ValidateUser');
+const { ValidateCreate } = require('../utils/Observador/ValidateCreate');
 
 const getAll = catchError(async(req, res) => {
     const results = await Observador.findAll();
@@ -7,9 +9,15 @@ const getAll = catchError(async(req, res) => {
 });
 
 const create = catchError(async(req, res) => {
+
+    const UserTipo = await ValidateUser(req)
     
-    const result = await Observador.create(req.body);
-    return res.status(201).json(result);
+    if(UserTipo ==='admin' || UserTipo ==='user'){
+       const Result = await ValidateCreate(req)
+      if(Result.path) return res.status(404).json({"message":`${Result.errors}`})
+    }
+   // const result = await Observador.create(req.body);
+   // return res.status(201).json(result);
 });
 
 const getOne = catchError(async(req, res) => {
