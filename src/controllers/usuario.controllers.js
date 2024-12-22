@@ -2,9 +2,10 @@ const catchError = require('../utils/catchError');
 const Usuarios = require('../models/Usuarios');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken')
-const cookieParser = require('cookie-parser');
 const {ValidateUser}  = require('../utils/ValidateUser');
 const { ValidateLogin } = require('../utils/ValidateLogin');
+const { ValidateCreteuser } = require('../utils/ValidateCreateUser');
+const { ValidateUpdateUser } = require('../utils/ValidateUpdateUser');
 
 
 const getAll = catchError(async (req, res) => {
@@ -19,23 +20,12 @@ const getAll = catchError(async (req, res) => {
 
 const Create = catchError(async (req, res) => {
     const Resp = await ValidateUser(req)
-    if(Resp ==="admin"){
-        const { nombre, apellidos, tipo, user, password, imagen, cargo, email } = req.body
-        const setPassword = await bcrypt.hash(password, 10)
-        const newUser={
-         nombre,
-         apellidos,
-         tipo,
-         user,
-         password : setPassword,
-         imagen,
-         cargo,
-         status:0,
-         email
-        }
-        const result = await Usuarios.create(newUser)
+    if(Resp === "admin" ){
+        const Resul = await ValidateCreteuser(req)
+        if(Resul.path) res.status(404).json({"message":`${Resul.errors}`})
+       const result = await Usuarios.create(Resul)
             if(!result) res.status(404).json({"message":"User not created"})
-             return res.status(200).json({"message":"User created successfully"})
+            return res.status(200).json({"message":"User created successfully"})
     }
     res.status(400).json({"message":"Unauthorized user"})
 })
@@ -54,39 +44,42 @@ const getOne = catchError (async ( req , res )=>{
 
 const Update = catchError(async ( req, res )=>{  
     const Resp = await ValidateUser(req)
-    const {password} = req.body
+    
     const id  = parseInt(req.params.id)   
     if(Resp === "admin"){          
-        const { nombre, apellidos, tipo, user, password, imagen, cargo, status,email } = req.body
-        const newUser={
-           nombre,
-           apellidos,
-           tipo,
-           user,
-           imagen,
-           cargo,
-           status,
-           email
-          }
-          if(password){
-            const setPassword = await bcrypt.hash(password, 10)
-             newUser.password=setPassword;
-             newUser.status=1
-         } 
-           const result = await Usuarios.update(newUser,{where:{id},returning:true})      
-           if(!result) return res.status(404).json({"message":"User not Updated"})
-            return res.status(200).json({"message":"User Updated successfully"})
+        const Resul = await ValidateUpdateUser(req)
+        const result = await Usuarios.update(Resul,{where:{id},returning:true})
+        if(!result) return res.status(404).json({"message":"User not Updated"})
+        return res.status(200).json({"message":"User Updated successfully"})
+    }else{
+          const Result = await ValidateUpdateUser(req)
+          if(Result.message) return res.status(404).json({"message":`${Result.message}`})
+          const Users = await Usuarios.findAll({where:{email:req.user.email}})
+          if(Result.path) return res.status(404).json({"message":`${Result.errors}`})
+            const result = await Usuarios.update(Result,{where:{id:Users[0].id},returning:true})
+        
+            if(!result) return res.status(404).json({"message":"User not Updated"})
+                return res.status(200).json({"message":"User Updated successfully"})    
+        }
+         // if(Resul.password){
+           // const setPassword = await bcrypt.hash(Resul.password, 10)
+            // newUser.password=setPassword;
+            // newUser.status=1
+         //} 
+          // const result = await Usuarios.update(newUser,{where:{id},returning:true})      
+           //
+            //
 
-    }else if(password){
-        const setPassword = await bcrypt.hash(password, 10)
-         const Pass ={
-            password:setPassword,
-            status:1
-         }
-         const result = await Usuarios.update(Pass,{where:{id},returning:true})
-         if(!result) return res.status(404).json({"message":"User not Updated"})
-          return res.status(200).json({"message":"User Updated successfully"})
-     }       
+   // }else if(password){
+     //   const setPassword = await bcrypt.hash(password, 10)
+       //  const Pass ={
+         //   password:setPassword,
+           // status:1
+         //}
+         //const result = await Usuarios.update(Pass,{where:{id},returning:true})
+         //if(!result) return res.status(404).json({"message":"User not Updated"})
+          //return res.status(200).json({"message":"User Updated successfully"})
+            
 })
 
 
@@ -153,3 +146,8 @@ module.exports = {
     Logged
 
 }
+
+
+
+
+

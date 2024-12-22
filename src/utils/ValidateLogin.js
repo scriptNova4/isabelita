@@ -1,6 +1,6 @@
 const yup = require('yup')
 
-const schema =yup.object().shape({
+const schema = yup.object().shape({
 email: yup.string().email().required(),
 password: yup.string().required().min(6)
 })
@@ -20,3 +20,6 @@ const ValidateLogin = async(req)=>{
 }
 
 module.exports={ValidateLogin}
+
+
+
