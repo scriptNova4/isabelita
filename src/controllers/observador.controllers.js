@@ -7,6 +7,7 @@ const getAll = catchError(async(req, res) => {
 });
 
 const create = catchError(async(req, res) => {
+    
     const result = await Observador.create(req.body);
     return res.status(201).json(result);
 });

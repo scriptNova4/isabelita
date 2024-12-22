@@ -43,8 +43,7 @@ const getOne = catchError (async ( req , res )=>{
 })
 
 const Update = catchError(async ( req, res )=>{  
-    const Resp = await ValidateUser(req)
-    
+    const Resp = await ValidateUser(req)    
     const id  = parseInt(req.params.id)   
     if(Resp === "admin"){          
         const Resul = await ValidateUpdateUser(req)
