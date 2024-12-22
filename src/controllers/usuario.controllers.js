@@ -2,10 +2,10 @@ const catchError = require('../utils/catchError');
 const Usuarios = require('../models/Usuarios');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken')
-const {ValidateUser}  = require('../utils/ValidateUser');
-const { ValidateLogin } = require('../utils/ValidateLogin');
-const { ValidateCreteuser } = require('../utils/ValidateCreateUser');
-const { ValidateUpdateUser } = require('../utils/ValidateUpdateUser');
+const { ValidateLogin } = require('../utils/ValidateUser/ValidateLogin');
+const { ValidateCreteuser } = require('../utils/ValidateUser/ValidateCreateUser');
+const { ValidateUpdateUser } = require('../utils/ValidateUser/ValidateUpdateUser');
+const { ValidateUser } = require('../utils/ValidateUser/ValidateUser');
 
 
 const getAll = catchError(async (req, res) => {
@@ -52,6 +52,7 @@ const Update = catchError(async ( req, res )=>{
         return res.status(200).json({"message":"User Updated successfully"})
     }else{
           const Result = await ValidateUpdateUser(req)
+          console.log("controller",Result)
           if(Result.message) return res.status(404).json({"message":`${Result.message}`})
           const Users = await Usuarios.findAll({where:{email:req.user.email}})
           if(Result.path) return res.status(404).json({"message":`${Result.errors}`})

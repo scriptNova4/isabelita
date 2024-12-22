@@ -1,7 +1,7 @@
 const catchError = require('../utils/catchError');
 const Empresas = require('../models/Empresas');
 const Usuarios = require('../models/Usuarios');
-const { ValidateUser } = require('../utils/ValidateUser');
+const { ValidateUser } = require('../utils/ValidateUser/ValidateUser');
 const { ValidateEmpresa } = require('../utils/empresas/ValidateEmpresa');
 
 const getAll = catchError(async(req, res) => {

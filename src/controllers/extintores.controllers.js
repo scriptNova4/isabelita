@@ -1,7 +1,7 @@
 const catchError = require('../utils/catchError');
 const Extintores = require('../models/Extintores');
 const Usuario = require('../models/Usuarios');
-const { ValidateUser } = require('../utils/ValidateUser');
+const { ValidateUser } = require('../utils/ValidateUser/ValidateUser');
 
 const getAll = catchError(async(req, res) => {
     const Resp = await ValidateUser(req)

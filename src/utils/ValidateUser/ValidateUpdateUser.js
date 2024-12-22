@@ -1,5 +1,5 @@
 const yup = require('yup')
-const Usuario = require('../models/Usuarios')
+const Usuario = require('../../models/Usuarios')
 const  bcrypt  = require('bcrypt')
 
 const schemaUpdateUser = yup.object().shape({
@@ -20,8 +20,9 @@ const ValidateUpdateUser = async(req) =>{
 
    const Users = await Usuario.findOne({where:{email:req.user.email}})
    if(Users.tipo === "admin"){
+               const {password} = req.body
             try{
-                const Data = await schemaUpdateUser.validate(req.body)
+                const Data = await schemaUpdateUser.validate(password)
                 const setPassword = await bcrypt.hash(Data.password, 10)
                 Data.password=setPassword;
                 return Data  
@@ -34,9 +35,13 @@ const ValidateUpdateUser = async(req) =>{
      try{
          const Resultado = await schemaUpdate.validate(req.body)
          const setPassword = await bcrypt.hash(Resultado.password, 10)
-         Resultado.status=1;
          Resultado.password = setPassword;
-         return Resultado
+         const UpdateUsers ={
+            password:Resultado.password,
+            status:1
+         }
+         console.log(UpdateUsers)
+         return UpdateUsers
      }catch(error){
           return error
      }

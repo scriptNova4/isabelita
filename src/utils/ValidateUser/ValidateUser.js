@@ -1,5 +1,5 @@
-const catchError = require("./catchError");
-const Usuarios = require('../models/Usuarios')
+const catchError = require("../catchError");
+const Usuarios = require('../../models/Usuarios')
 
 
 

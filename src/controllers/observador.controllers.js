@@ -1,6 +1,6 @@
 const catchError = require('../utils/catchError');
 const Observador = require('../models/Observador');
-const { ValidateUser } = require('../utils/ValidateUser');
+const { ValidateUser } = require('../utils/ValidateUser/ValidateUser');
 const { ValidateCreate } = require('../utils/Observador/ValidateCreate');
 const Extintor = require('../models/Extintores');
 const { sendEmail } = require('../utils/sendEmail/sendEmail');
@@ -14,11 +14,10 @@ const create = catchError(async(req, res) => {
 
     const UserTipo = await ValidateUser(req)
     
-    if(UserTipo ==='admin' || UserTipo ==='user'){
+    if(UserTipo === 'admin' || UserTipo ==='user'){
        const Result = await ValidateCreate(req)
       if(Result.path) return res.status(404).json({"message":`${Result.errors}`})
         const ext = await Extintor.findOne({where:{id:Result.extintoreId}})
-     console.log(ext)
         const result = await Observador.create(Result)
         if(!result) return res.status(404).json({"message":"Observation not recorded"})
         await sendEmail({
@@ -27,7 +26,7 @@ const create = catchError(async(req, res) => {
             html: ` 
                     <div>
                             <h1>Observacion de Extintor</h1>
-                            <p>El extintor con codigo interno ${ext.code} tiene la siguiente Observacion: </p><br/>
+                            <p>El extintor con codigo interno ${ext.codigo} tiene la siguiente Observacion: </p><br/>
                             <p>${Result.observacion}</p><<br/>
                             <img src="${Result.imagen}"/><br/>
                             <p>Usuario que genero el reporte ${req.user.email}</p>
@@ -38,7 +37,7 @@ const create = catchError(async(req, res) => {
     return res.status(201).json({"message":"Observation sent successfully"})
 
     }
-        
+    
   
     return res.status(404).json({"message":"Unauthorized User"});
 });
