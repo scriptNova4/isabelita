@@ -15,8 +15,8 @@ Extintores.hasMany(Inspecciones)
 Inspecciones.belongsTo(Usuarios)
 Usuarios.hasMany(Inspecciones)
 
-Extintores.belongsTo(Empresas)
-Empresas.hasMany(Extintores)
+Empresas.belongsTo(Extintores)
+Extintores.hasMany(Empresas)
 
 Observador.belongsTo(Usuarios)
 Usuarios.hasMany(Observador)

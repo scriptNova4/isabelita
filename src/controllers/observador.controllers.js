@@ -18,21 +18,27 @@ const create = catchError(async(req, res) => {
        const Result = await ValidateCreate(req)
       if(Result.path) return res.status(404).json({"message":`${Result.errors}`})
         const ext = await Extintor.findOne({where:{id:Result.extintoreId}})
+       newUpdate ={
+        status:1
+       }
+      //cambiamos el estado al extintor para que muestre una alerta!!
+        const updateStadoextintor = await Extintor.update(newUpdate,{where:{id:Result.extintoreId}, returning:true})
         const result = await Observador.create(Result)
         if(!result) return res.status(404).json({"message":"Observation not recorded"})
         await sendEmail({
             to: "rincon303@gmail.com", // Email del receptor
-            subject: "Extintor con Observacion -Ojo--", // asunto
+            subject: "Extintor con Observacion", // asunto
             html: ` 
-                    <div>
+                    <div className={"flex bg-red-100 rounded-lg p-4 mb-4 text-sm text-red-700" role="alert"}>
                             <h1>Observacion de Extintor</h1>
                             <p>El extintor con codigo interno ${ext.codigo} tiene la siguiente Observacion: </p><br/>
                             <p>${Result.observacion}</p><<br/>
+                            <p>Esta ubicado ==> ${ext.ubicacion}</p><br/>
                             <img src="${Result.imagen}"/><br/>
                             <p>Usuario que genero el reporte ${req.user.email}</p>
 
                     </div>
-            ` // con backtics ``
+            ` 
     })
     return res.status(201).json({"message":"Observation sent successfully"})
 

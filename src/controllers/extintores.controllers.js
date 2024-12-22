@@ -2,6 +2,7 @@ const catchError = require('../utils/catchError');
 const Extintores = require('../models/Extintores');
 const Usuario = require('../models/Usuarios');
 const { ValidateUser } = require('../utils/ValidateUser/ValidateUser');
+const { ValidateExtintor } = require('../utils/Extintores/ValidateExtintor');
 
 const getAll = catchError(async(req, res) => {
     const Resp = await ValidateUser(req)
@@ -16,8 +17,11 @@ const getAll = catchError(async(req, res) => {
 const Create = catchError(async(req, res) => {
     const Resp = await ValidateUser(req)
     if(Resp === "admin"){
-        const result = await Extintores.create(req.body);
-        return res.status(201).json(result);
+        const Resul = await ValidateExtintor(req);
+        if(Resul.path) return res.status(404).json({"message":`${Resul.errors}`})
+        const result = await Extintores.create(Resul);
+        if(!result) return res.status(404).json({"message":"Error registering the fire extinguisher"})
+        return res.status(201).json({"message":"registration successfully"});
         }
         res.status(404).json({"message":"Unauthorized user"})
 });

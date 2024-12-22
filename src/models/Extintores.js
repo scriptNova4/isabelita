@@ -27,11 +27,11 @@ const Extintores = sequelize.define('extintore', {
         allowNull: false
     },
     f_cadicidad_agente: {
-        type: DataTypes.STRING,
+        type: DataTypes.DATEONLY,
         allowNull: false
     },
     f_prueba_hidro: {
-        type: DataTypes.STRING,
+        type: DataTypes.DATEONLY,
         allowNull: false
     },
     ubicacion: {
