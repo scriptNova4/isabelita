@@ -1,10 +1,12 @@
 const yup = require('yup')
 const Usuarios = require('../../models/Usuarios')
 const Extintor = require('../../models/Extintores')
+const { extensions } = require('sequelize/lib/utils/validator-extras')
 
 const schemaObservador = yup.object().shape({
 imagen: yup.string().url(),
-observacion: yup.string().lowercase()
+observacion: yup.string().lowercase(),
+extintor: yup.number(),
 })
 
 
@@ -15,7 +17,6 @@ const ValidateCreate = async(req)=>{
    
     try{
         const Respuesta = await schemaObservador.validate(req.body)
-        console.log("Respuesta",Respuesta)
         Respuesta.usuarioId = Users.id
         Respuesta.extintoreId = extintor.id
         return Respuesta

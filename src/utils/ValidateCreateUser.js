@@ -8,7 +8,7 @@ const schemaCreateUser = yup.object().shape({
     apellidos: yup.string().lowercase().required(),
     tipo: yup.string().lowercase().required(),
     password: yup.string().required().min(6),
-    imagen:yup.url,
+    imagen: yup.string().url(),
     cargo: yup.string().lowercase().required(),
     email: yup.string().email()
     })
