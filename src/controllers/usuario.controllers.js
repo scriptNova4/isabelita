@@ -61,25 +61,7 @@ const Update = catchError(async ( req, res )=>{
             if(!result) return res.status(404).json({"message":"User not Updated"})
                 return res.status(200).json({"message":"User Updated successfully"})    
         }
-         // if(Resul.password){
-           // const setPassword = await bcrypt.hash(Resul.password, 10)
-            // newUser.password=setPassword;
-            // newUser.status=1
-         //} 
-          // const result = await Usuarios.update(newUser,{where:{id},returning:true})      
-           //
-            //
-
-   // }else if(password){
-     //   const setPassword = await bcrypt.hash(password, 10)
-       //  const Pass ={
-         //   password:setPassword,
-           // status:1
-         //}
-         //const result = await Usuarios.update(Pass,{where:{id},returning:true})
-         //if(!result) return res.status(404).json({"message":"User not Updated"})
-          //return res.status(200).json({"message":"User Updated successfully"})
-            
+         
 })
 
 
