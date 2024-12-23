@@ -1,4 +1,4 @@
-// Importa los tipos de datos y la conexión configurada con Sequelize
+// Importa los tipos de datos y la conexión configurada con Sequelize 2
 const { DataTypes } = require('sequelize');
 const sequelize = require('../utils/connection');
 
