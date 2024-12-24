@@ -1,4 +1,4 @@
-// Importa los tipos de datos y la conexión configurada con Sequelize 2
+
 const { DataTypes } = require('sequelize');
 const sequelize = require('../utils/connection');
 
@@ -26,5 +26,5 @@ const Empresa = sequelize.define('empresa', {
     }
 });
 
-// Exporta el modelo para usarlo en otras partes del proyecto
+
 module.exports = Empresa;
