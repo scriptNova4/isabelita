@@ -7,7 +7,18 @@ const { ValidateExtintor } = require('../utils/Extintores/ValidateExtintor');
 const getAll = catchError(async(req, res) => {
     const Resp = await ValidateUser(req)
     if(Resp ==="admin"){
-        const results = await Extintores.findAll();
+        const results = await Extintores.findAll({attributes:{exclude:['createdAt','updatedAt','id','usuarioId']},
+            include:[{
+                model:Usuario,
+                attributes:{exclude:['createdAt','updatedAt','status','id','password']}
+           }]});
+          results.forEach((items)=>{
+            delete items.createdAt
+            delete items.updatedAt
+            delete items.usuarioId  
+            return items          
+         })
+
         return res.status(200).json(results);
     }
 

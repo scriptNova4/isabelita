@@ -10,13 +10,17 @@ img_plano: yup.string().url()
 
 
 const ValidateEmpresa = async(req) =>{
+  console.log(req.body)
+  
 try{
     const Data = await schema.validate(req.body)
+    console.log("Data",Data)
       return Data
     }catch(error){
+      console.log(error)
       return  ErrorData={
          ErrorCampo:error.path,
-         tipoDato:error.params.type
+         tipoDato:error.errors
       }
 }
    
